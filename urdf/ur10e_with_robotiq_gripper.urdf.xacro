@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="brrrrr">
+  <!-- include macros for ur10e and the end effector (eef) model -->
+  <xacro:include filename="$(find robotiq_85_description)/urdf/robotiq_85_gripper_macro.urdf.xacro" />
+  <xacro:include filename="$(find ur_description)/urdf/ur.urdf.xacro"/>
+
+  <!-- create the robot + eef combo itself as a macro -->
+  <xacro:macro name="ur10e_with_gripper" params="prefix">
+
+    <!-- instantiate ur10e and eef model -->
+    <!-- <xacro:ur_robot prefix="${prefix}robot_" /> is already initialized in ur.urdf.xacro-->
+    <xacro:robotiq_85_gripper prefix="${prefix}" parent="${prefix}flange" >
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:robotiq_85_gripper>
+
+    <!-- attach eef to ur10e model -->
+    <!-- Note: this assumes that the 'my_eef' macro defines a 'base_link'
+         link which is the start of it's kinematic chain (if any) -->
+    <!-- <joint name="${prefix}robot_flange-${prefix}eef_base_link" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <parent link="${prefix}robot_flange" />
+      <child link="${prefix}eef_base_link" />
+    </joint> -->
+
+  </xacro:macro>
+
+  <xacro:ur10e_with_gripper prefix="''"/>
+  <xacro:property name="width" value="0.01" />
+  <xacro:property name="bodylen" value="0.05" />
+  <link name="cylinder_link">
+      <visual>
+          <geometry>
+              <cylinder radius="${width}" length="${bodylen}"/>
+          </geometry>
+          <material name="blue"/>
+      </visual>
+      <collision>
+          <geometry>
+              <cylinder radius="${width}" length="${bodylen}"/>
+          </geometry>
+      </collision>
+  </link>
+
+  <joint name="cylinder_base_joint" type="fixed">
+      <parent link="world"/>
+      <child link="cylinder_link"/>
+      <origin xyz="0.8 0 0.8" rpy="0 0 0"/>
+  </joint>
+
+</robot>
