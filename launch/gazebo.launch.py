@@ -43,6 +43,7 @@ from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.descriptions import ParameterValue
 
+
 def launch_setup(context, *args, **kwargs):
 
     # Initialize Arguments
@@ -87,7 +88,7 @@ def launch_setup(context, *args, **kwargs):
             safety_k_position,
             " ",
             "name:=",
-            "ur",
+            "ur10e_with_eef",
             " ",
             "ur_type:=",
             ur_type,
@@ -125,6 +126,18 @@ def launch_setup(context, *args, **kwargs):
         arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
     )
 
+    joint_state_publisher_node = Node(
+        package="joint_state_publisher_gui",
+        executable="joint_state_publisher_gui",
+        #parameters=[{'use_sim_time' : True}]
+    )
+
+    joint_trajectory_controller = Node(
+           package="controller_manager",
+           executable="spawner",    
+            arguments=["joint_trajectory_controller", "-c", "/controller_manager"],
+            )
+
     # Delay rviz start after `joint_state_broadcaster`
     delay_rviz_after_joint_state_broadcaster_spawner = RegisterEventHandler(
         event_handler=OnProcessExit(
@@ -147,10 +160,33 @@ def launch_setup(context, *args, **kwargs):
         condition=UnlessCondition(start_joint_controller),
     )
 
-    # Gazebo nodes
+    # GZ nodes
+    gz_spawn_entity = Node(
+        package="ros_gz_sim",
+        executable="create",
+        output="screen",
+        arguments=[
+            "-string",
+            robot_description_content,
+            "-name",
+            "ur10e_with_eef",
+            "-allow_renaming",
+            "true",
+        ],
+    )
+
+    gz_launch_description = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            [FindPackageShare("ros_gz_sim"), "/launch/gz_sim.launch.py"]
+        ),        
+        launch_arguments={
+            "gz_args": " -r -v 4 empty.sdf"}.items(),
+    )
+
+    # # Gazebo nodes
     # gazebo = IncludeLaunchDescription(
     #     PythonLaunchDescriptionSource(
-    #         [FindPackageShare("ros2_gz"), "/launch", "/gazebo.launch.py"]
+    #         [FindPackageShare("gazebo_ros"), "/launch", "/gazebo.launch.py"]
     #     ),
     #     launch_arguments={
     #         "gui": gazebo_gui,
@@ -159,27 +195,23 @@ def launch_setup(context, *args, **kwargs):
 
     # # Spawn robot
     # gazebo_spawn_robot = Node(
-    #     package="ros2_gz",
+    #     package="gazebo_ros",
     #     executable="spawn_entity.py",
     #     name="spawn_ur",
-    #     arguments=["-entity", "ur", "-topic", "robot_description"],
+    #     arguments=["-entity", "ur10e_with_eef", "-topic", "robot_description"],
     #     output="screen",
     # )
-
-    gazebo = ExecuteProcess(
-            cmd=['ign gazebo'],
-            output='screen',
-            shell=True
-        )
 
     nodes_to_start = [
         robot_state_publisher_node,
         joint_state_broadcaster_spawner,
+        joint_state_publisher_node,
         delay_rviz_after_joint_state_broadcaster_spawner,
         initial_joint_controller_spawner_stopped,
         initial_joint_controller_spawner_started,
-        gazebo,
-        # gazebo_spawn_robot,
+        gz_spawn_entity,
+        gz_launch_description,
+        joint_trajectory_controller
     ]
 
     return nodes_to_start
