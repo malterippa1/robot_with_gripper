@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- <include file="$(find ur_description)/launch/load_ur10.launch"/> -->
+
+    <!--ur10e parameters files -->
+    <arg name="joint_limit_params" default="$(find ur_description)/config/ur10e/joint_limits.yaml"/>
+    <arg name="kinematics_params" default="$(find ur_description)/config/ur10e/default_kinematics.yaml"/>
+    <arg name="physical_params" default="$(find ur_description)/config/ur10e/physical_parameters.yaml"/>
+    <arg name="visual_params" default="$(find ur_description)/config/ur10e/visual_parameters.yaml"/>
+    <!--common parameters -->
+    <arg name="transmission_hw_interface" default="hardware_interface/PositionJointInterface" />
+    <arg name="safety_limits" default="false" doc="If True, enable the safety limits controller"/>
+    <arg name="safety_pos_margin" default="0.15" doc="The lower/upper limits in the safety controller" />
+    <arg name="safety_k_position" default="20" doc="Used to set k position in the safety controller" />
+
+    <arg name="robot_model" value="ur10e" />
+
+    <param name="robot_description" command="rosrun xacro xacro '$(find robot_with_gripper)/urdf/ur10e_with_gripper_ros1.urdf.xacro'
+    robot_model:=$(arg robot_model)
+    joint_limit_params:=$(arg joint_limit_params)
+    kinematics_params:=$(arg kinematics_params)
+    physical_params:=$(arg physical_params)
+    visual_params:=$(arg visual_params)
+    transmission_hw_interface:=$(arg transmission_hw_interface)
+    safety_limits:=$(arg safety_limits)
+    safety_pos_margin:=$(arg safety_pos_margin)
+    safety_k_position:=$(arg safety_k_position)"
+    />
+
+    <!-- <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" /> -->
+    <!-- <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" /> -->
+    <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find robot_with_gripper)/rviz/view_model_ros1.rviz" required="true" /> -->
+</launch>

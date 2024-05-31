@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(robot_with_gripper)
 
-find_package(ament_cmake REQUIRED)
+find_package(catkin REQUIRED)
 
 install(
   DIRECTORY
@@ -13,4 +13,4 @@ install(
     share/${PROJECT_NAME}
 )
 
-ament_package()
+catkin_package()
