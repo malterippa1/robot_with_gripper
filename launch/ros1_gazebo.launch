@@ -31,6 +31,7 @@
   -->
 
   <!--Robot description and related parameter files -->
+  <!-- <arg name="robot_description_file" default="$(find ur_gazebo)/launch/inc/load_ur10e.launch.xml" doc="Launch file which populates the 'robot_description' parameter."/> -->
   <arg name="robot_description_file" default="$(find robot_with_gripper)/launch/model_bringup.launch" doc="Launch file which populates the 'robot_description' parameter."/>
   <arg name="joint_limit_params" default="$(find ur_description)/config/ur10e/joint_limits.yaml"/>
   <arg name="kinematics_params" default="$(find ur_description)/config/ur10e/default_kinematics.yaml"/>
@@ -39,7 +40,11 @@
 
   <!-- Controller configuration -->
   <arg name="controller_config_file" default="$(find ur_gazebo)/config/ur10e_controllers.yaml" doc="Config file used for defining the ROS-Control controllers."/>
-  <arg name="controllers" default="joint_state_controller eff_joint_traj_controller" doc="Controllers that are activated by default."/>
+  <arg name="controllers" default="joint_state_controller joint_1_position_controller 
+                                    joint_2_position_controller joint_3_position_controller 
+                                    joint_4_position_controller joint_5_position_controller 
+                                    joint_6_position_controller joint_finger_position_controller" 
+                                    doc="Controllers that are activated by default."/>
   <arg name="stopped_controllers" default="joint_group_eff_controller" doc="Controllers that are initally loaded, but not started."/>
 
   <!-- robot_state_publisher configuration -->
@@ -51,15 +56,7 @@
   <arg name="gui" default="true" doc="Starts Gazebo gui" />
 
   <!-- Load urdf on the parameter server -->
-  <include file="$(arg robot_description_file)">
-    <arg name="joint_limit_params" value="$(arg joint_limit_params)"/>
-    <arg name="kinematics_params" value="$(arg kinematics_params)"/>
-    <arg name="physical_params" value="$(arg physical_params)"/>
-    <arg name="visual_params" value="$(arg visual_params)"/>
-  </include>
-
-  <!-- Robot state publisher -->
-  <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" />
+  <include file="$(arg robot_description_file)"/>
 
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
     <param name="publish_frequency" type="double" value="$(arg tf_pub_rate)" />
@@ -67,7 +64,7 @@
   </node>
 
   <!-- RViz -->
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find robot_with_gripper)/rviz/view_model_ros1.rviz" required="true" />
+  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find robot_with_gripper)/rviz/view_model_ros1.rviz" required="true" /> -->
 
   <!-- Start the 'driver' (ie: Gazebo in this case) -->
   <include file="$(find ur_gazebo)/launch/inc/ur_control.launch.xml">
